@@ -2,13 +2,13 @@ package tornadofx;
 
 public abstract class FXEvent {
 	private static final ThreadLocal<ListenerContext> context = new ThreadLocal<>();
-	private Injectable source;
+	private Component source;
 
-	public Injectable getSource() {
+	public Component getSource() {
 		return source;
 	}
 
-	void setSource(Injectable source) {
+	void setSource(Component source) {
 		this.source = source;
 	}
 

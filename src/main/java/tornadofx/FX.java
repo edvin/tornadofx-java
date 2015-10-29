@@ -127,7 +127,7 @@ public class FX {
 	 * @param source The target component
 	 * @param isFxThread Are we running in the FX Thread?
 	 */
-	static void submit(ThrowableRunnable invocation, Injectable source, Boolean isFxThread) {
+	static void submit(ThrowableRunnable invocation, Component source, Boolean isFxThread) {
 		if (isFxThread && !source.isUIComponent())
 			FX.executor.submit(errorReportingRunnable(source, invocation));
 		else if (!isFxThread && source.isUIComponent())
@@ -136,7 +136,7 @@ public class FX {
 			errorReportingRunnable(source, invocation).run();
 	}
 
-	static Runnable errorReportingRunnable(Injectable source, ThrowableRunnable runnable) {
+	static Runnable errorReportingRunnable(Component source, ThrowableRunnable runnable) {
 		return () -> InjectionContext.catchAndPublishError(source, runnable);
 	}
 	/**
@@ -145,7 +145,7 @@ public class FX {
 	 * @param invocation The invocation to perform
 	 * @param source The source component
 	 */
-	static void submit(ThrowableRunnable invocation, Injectable source) {
+	static void submit(ThrowableRunnable invocation, Component source) {
 		submit(invocation, source, Platform.isFxApplicationThread());
 	}
 

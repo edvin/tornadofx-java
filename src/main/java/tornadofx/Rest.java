@@ -36,12 +36,12 @@ public class Rest extends Controller {
 	private CredentialsProvider credentialsProvider;
 
 	public Rest() {
-		clientContext = HttpClientContext.create();
+		resetClientContext();
 		configure();
 	}
 
-	public void setBaseURI(String baseURI) throws URISyntaxException {
-		URI uri = new URI(baseURI);
+	public void setBaseURI(String baseURI) {
+		URI uri = URI.create(baseURI);
 
 		this.baseURI = uri.getPath();
 
@@ -73,6 +73,10 @@ public class Rest extends Controller {
 			.setSocketTimeout(5000)
 			.setConnectTimeout(5000)
 			.build();
+	}
+
+	public void resetClientContext() {
+		clientContext = HttpClientContext.create();
 	}
 
 	public void setBasicAuth(String username, String password) {
@@ -132,6 +136,8 @@ public class Rest extends Controller {
 
 			if (uri.toString().endsWith("/") && path.startsWith("/"))
 				uri.append(path.substring(1));
+			else if (!uri.toString().endsWith("/") && !path.startsWith("/"))
+				uri.append("/").append(path);
 			else
 				uri.append(path);
 

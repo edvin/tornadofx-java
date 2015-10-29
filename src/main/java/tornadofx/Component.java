@@ -13,7 +13,8 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-abstract class Injectable {
+@SuppressWarnings("unused")
+public abstract class Component {
 	public boolean isUIComponent() {
 		return UIComponent.class.isAssignableFrom(getClass());
 	}
@@ -70,16 +71,16 @@ abstract class Injectable {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <NodeType extends Node, ViewType extends View> ViewType findView(Class<ViewType> componentType) {
+	public static <NodeType extends Node, ViewType extends View> ViewType lookupView(Class<ViewType> componentType) {
 		return InjectionContext.get(componentType);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected  <NodeType extends Node, FragmentType extends Fragment> FragmentType createFragment(Class<FragmentType> fragmentType) {
+	public static <NodeType extends Node, FragmentType extends Fragment> FragmentType createFragment(Class<FragmentType> fragmentType) {
 		return InjectionContext.get(fragmentType);
 	}
 
-	protected  <ControllerType extends Controller> ControllerType findController(Class<ControllerType> type) throws Exception {
+	public static <ControllerType extends Controller> ControllerType lookupController(Class<ControllerType> type) {
 		return InjectionContext.get(type);
 	}
 

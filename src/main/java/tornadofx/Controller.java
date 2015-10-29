@@ -1,5 +1,5 @@
 package tornadofx;
 
-public class Controller extends Injectable implements EventCapable {
+public class Controller extends Component implements EventCapable {
 
 }

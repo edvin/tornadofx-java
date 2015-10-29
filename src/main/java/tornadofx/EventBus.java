@@ -34,7 +34,7 @@ class EventBus {
 		return list;
 	}
 
-	public static void publishError(Injectable source, Throwable error) {
+	public static void publishError(Component source, Throwable error) {
 		UIError event = new UIError(error);
 		event.setSource(source);
 		publish(event);
@@ -62,7 +62,7 @@ class EventBus {
 					getListenersForEventType(event.getClass()).remove(this);
 			};
 
-			FX.submit(invocation, (Injectable) target);
+			FX.submit(invocation, (Component) target);
 		}
 
 		Class<? extends FXEvent> getEventType() {

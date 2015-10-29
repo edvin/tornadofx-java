@@ -13,7 +13,8 @@ import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 
-public abstract class UIComponent<NodeType extends Node> extends Injectable {
+@SuppressWarnings("unused")
+public abstract class UIComponent<NodeType extends Node> extends Component {
 	private SimpleObjectProperty<NodeType> node = new SimpleObjectProperty<>();
 	private SimpleStringProperty title = new SimpleStringProperty();
 	ReadOnlyBooleanWrapper docked = new ReadOnlyBooleanWrapper();
@@ -116,4 +117,5 @@ public abstract class UIComponent<NodeType extends Node> extends Injectable {
 	public boolean isDocked() {
 		return getNode().getParent() != null;
 	}
+
 }

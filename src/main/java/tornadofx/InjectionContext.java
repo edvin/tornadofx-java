@@ -11,28 +11,28 @@ import static tornadofx.ReflectionTools.setFieldValue;
 
 @SuppressWarnings("unchecked")
 class InjectionContext {
-	private static final Map<Class, Injectable> singletons = new HashMap<>();
+	private static final Map<Class, Component> singletons = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
-	static <InjectableType extends Injectable> InjectableType get(Class<InjectableType> type) {
+	static <InjectableType extends Component> InjectableType get(Class<InjectableType> type) {
 		if (singletons.containsKey(type))
 			return (InjectableType) singletons.get(type);
 
-		List<Injectable> injectables = new ArrayList<>();
+		List<Component> components = new ArrayList<>();
 
 		Set<Class> injectableTypes = InjectionContext.scanForInjectables(type);
 
 		for (Class it : injectableTypes) {
-			Pair<Injectable, Boolean> result = lookupOrCreate(it);
+			Pair<Component, Boolean> result = lookupOrCreate(it);
 
-			Injectable injectable = result.getKey();
+			Component component = result.getKey();
 			boolean wasCreated = result.getValue();
 
 			if (wasCreated)
-				injectables.add(injectable);
+				components.add(component);
 		}
 
-		injectables.stream()
+		components.stream()
 			.forEach(injectable -> {
 				if (injectable.isView())
 					FX.registerViewTargets(injectable.toView());
@@ -43,11 +43,11 @@ class InjectionContext {
 				inject(injectable);
 			});
 
-		injectables.forEach(InjectionContext::postConstruct);
+		components.forEach(InjectionContext::postConstruct);
 
-		injectables.forEach(InjectionContext::postInit);
+		components.forEach(InjectionContext::postInit);
 
-		return (InjectableType) injectables.get(0);
+		return (InjectableType) components.get(0);
 	}
 
 	static Set<Class> scanForInjectables(Class type) {
@@ -56,8 +56,8 @@ class InjectionContext {
 		return injectables;
 	}
 
-	static Pair<Injectable, Boolean> lookupOrCreate(Class<? extends Injectable> componentType) {
-		Injectable injectable;
+	static Pair<Component, Boolean> lookupOrCreate(Class<? extends Component> componentType) {
+		Component injectable;
 		Boolean constructed;
 
 		if (Fragment.class.isAssignableFrom(componentType)) {
@@ -93,7 +93,7 @@ class InjectionContext {
 		return new Pair(injectable, constructed);
 	}
 
-	static void catchAndPublishError(Injectable source, ThrowableRunnable runnable) {
+	static void catchAndPublishError(Component source, ThrowableRunnable runnable) {
 		try {
 			runnable.run();
 		} catch (Exception ex) {
@@ -101,16 +101,16 @@ class InjectionContext {
 		}
 	}
 
-	static void postInit(Injectable injectable) {
-		catchAndPublishError(injectable, injectable::postInit);
+	static void postInit(Component component) {
+		catchAndPublishError(component, component::postInit);
 	}
 
-	static void postConstruct(Injectable injectable) {
-		catchAndPublishError(injectable, () -> {
-			injectable.postConstruct();
+	static void postConstruct(Component component) {
+		catchAndPublishError(component, () -> {
+			component.postConstruct();
 
 			ComponentConstructed constructedEvent = new ComponentConstructed();
-			constructedEvent.setSource(injectable);
+			constructedEvent.setSource(component);
 			EventBus.publish(constructedEvent);
 		});
 	}
@@ -125,17 +125,17 @@ class InjectionContext {
 	}
 
 	@SuppressWarnings("SuspiciousMethodCalls")
-	static void inject(Injectable injectable) {
-		for (Field field : injectable.getClass().getDeclaredFields()) {
-			if (Injectable.class.isAssignableFrom(field.getType())) {
+	static void inject(Component component) {
+		for (Field field : component.getClass().getDeclaredFields()) {
+			if (Component.class.isAssignableFrom(field.getType())) {
 				Inject inject = field.getAnnotation(Inject.class);
 				if (inject != null)
-					setFieldValue(injectable, field, singletons.get(field.getType()));
+					setFieldValue(component, field, singletons.get(field.getType()));
 			}
 		}
 	}
 
-	private static void scanForInjectables(Set<Class> injectables, Class<? extends Injectable> type) {
+	private static void scanForInjectables(Set<Class> injectables, Class<? extends Component> type) {
 		if (injectables.contains(type))
 			return;
 
@@ -143,13 +143,13 @@ class InjectionContext {
 
 		Requires requires = type.getAnnotation(Requires.class);
 		if (requires != null)
-			for (Class<? extends Injectable> dependency : requires.value())
+			for (Class<? extends Component> dependency : requires.value())
 				scanForInjectables(injectables, dependency);
 
 		for (Field field : type.getDeclaredFields()) {
 			Inject inject = field.getAnnotation(Inject.class);
-			if (inject != null && Injectable.class.isAssignableFrom(field.getType())) {
-				Class<? extends Injectable> fieldType = (Class<? extends Injectable>) field.getType();
+			if (inject != null && Component.class.isAssignableFrom(field.getType())) {
+				Class<? extends Component> fieldType = (Class<? extends Component>) field.getType();
 				scanForInjectables(injectables, fieldType);
 				injectables.add(fieldType);
 			}

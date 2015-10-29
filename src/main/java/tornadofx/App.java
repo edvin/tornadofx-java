@@ -4,8 +4,9 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 @SuppressWarnings("unchecked")
@@ -13,44 +14,45 @@ public abstract class App extends Application {
 
 	public abstract Class<? extends View<? extends Pane>> getRootViewClass();
 
-	public Class<? extends Injectable> getErrorHandlerClass() {
+	public Class<? extends Component> getErrorHandlerClass() {
 		return DefaultErrorHandler.class;
 	}
 
 	public void start(Stage stage) throws Exception {
-		// Make sure error handler is ready
 		InjectionContext.get(getErrorHandlerClass());
 
-		// Instantiate root view
-		View<Pane> root = InjectionContext.get((Class<View<Pane>>) getRootViewClass());
+		View<Pane> rootView = InjectionContext.get((Class<View<Pane>>) getRootViewClass());
 
-		stage.titleProperty().bind(root.titleProperty());
+		stage.titleProperty().bind(rootView.titleProperty());
 
-		Scene scene = createScene(root.getNode());
+		Pane parent = rootView.getNode();
+
+		if (parent == null) {
+			parent = new StackPane();
+			parent.getChildren().add(new Label("Failed to create root view, see log for details."));
+		}
+
+		Scene scene = createScene(parent, stage);
 		stage.setScene(scene);
-
-		stage.show();
-
-		postInit(stage);
+		stageReady(stage);
 
 		Platform.setImplicitExit(getImplicitExit());
 	}
 
-	public void postInit(Stage stage) {
-		stage.getScene().getAccelerators()
-			.put(KeyCombination.valueOf("Shortcut+s"), () -> stage.getScene().lookup("#query").requestFocus());
+	public void stageReady(Stage stage) {
+		stage.show();
 	}
 
-	public Scene createScene(Parent parent) {
-		return new Scene(parent, getInitialWidth(), getInitialHeight());
+	public Scene createScene(Parent parent, Stage stage) {
+		return new Scene(parent, getInitialWidth(stage), getInitialHeight(stage));
 	}
 
-	public double getInitialWidth() {
-		return 1024;
+	public double getInitialWidth(Stage stage) {
+		return Math.min(1024, stage.getWidth());
 	}
 
-	public double getInitialHeight() {
-		return 768;
+	public double getInitialHeight(Stage stage) {
+		return Math.min(768, stage.getHeight());
 	}
 
 	public boolean getImplicitExit() {
