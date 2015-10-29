@@ -75,7 +75,7 @@ public class Rest extends Controller {
 			.build();
 	}
 
-	public void configureBasicAuth(String username, String password) {
+	public void setBasicAuth(String username, String password) {
 		BasicCredentialsProvider credsProvider = new BasicCredentialsProvider();
 
 		credsProvider.setCredentials(

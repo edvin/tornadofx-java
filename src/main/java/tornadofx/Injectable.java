@@ -46,6 +46,10 @@ abstract class Injectable {
 		return async(backroundOperation, null, null);
 	}
 
+	protected Task<Void> async(ThrowableRunnable backroundOperation) {
+		return async(() -> { backroundOperation.run(); return null; }, null, null);
+	}
+
 	protected <T> Task<T> async(Callable<T> backroundOperation, Consumer<T> uiConsumer, Consumer<Throwable> errorConsumer) {
 		Task<T> task = new Task<T>() {
 			protected T call() throws Exception {
@@ -113,7 +117,7 @@ abstract class Injectable {
 		return getProperties().getProperty(key, defaultValue);
 	}
 
-	private void saveProperties(Properties properties) {
+	public void saveProperties(Properties properties) {
 		try (OutputStream output = Files.newOutputStream(getPropertyPath())) {
 			properties.store(output, "");
 		} catch (IOException saveFailed) {
@@ -121,7 +125,7 @@ abstract class Injectable {
 		}
 	}
 
-	private void removeProperty(String key) {
+	public void removeProperty(String key) {
 		Properties properties = getProperties();
 		properties.remove(key);
 
@@ -135,7 +139,8 @@ abstract class Injectable {
 			fire(new UIError(ex));
 		}
 	}
-	private Properties getProperties() {
+
+	public Properties getProperties() {
 		Properties properties = new Properties();
 
 		Path path = getPropertyPath();
