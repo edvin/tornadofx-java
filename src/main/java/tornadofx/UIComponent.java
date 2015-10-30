@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -112,6 +113,26 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 
 	public boolean isDocked() {
 		return getNode().getParent() != null;
+	}
+
+	protected void onDock(UIComponent parent, Node node) {
+
+	}
+
+	protected void onUndock(UIComponent parent, Node node) {
+
+	}
+
+	public void onDockInTab(UIComponent view, TabPane tabPane, Tab tab) {
+
+	}
+
+	protected void onChildDocked(UIComponent child, Node parentNode) {
+
+	}
+
+	protected void onChildUndocked(UIComponent child, Node parentNode) {
+
 	}
 
 }

@@ -173,7 +173,8 @@ public abstract class Component {
     }
 
     public static UIComponent getComponent(Tab tab) {
-        return getComponent(tab.getContent());
+	    Node content = tab.getContent();
+	    return content == null ? null : getComponent(content);
     }
 
 }

@@ -63,6 +63,10 @@ public class FX {
 			if (!config.multi())
 				pane.getChildren().clear();
 
+			child.onDock(component, containerNode);
+			child.docked.setValue(true);
+			component.onChildDocked(child, containerNode);
+
 			pane.getChildren().add(child.getNode());
 		} else if (containerNode instanceof TabPane) {
 			TabPane tabPane = (TabPane) containerNode;
@@ -73,14 +77,22 @@ public class FX {
 			Tab tab = new Tab();
 			tab.setContent(child.getNode());
 
-			tab.textProperty().bindBidirectional(child.titleProperty());
+			tab.textProperty().bind(child.titleProperty());
 			tabPane.getTabs().add(tab);
 			tabPane.getSelectionModel().select(tab);
+
+			child.onDockInTab(component, (TabPane) containerNode, tab);
+			child.docked.setValue(true);
+			component.onChildDocked(child, containerNode);
 		} else if (containerNode instanceof ToolBar) {
 			ToolBar toolBar = (ToolBar) containerNode;
 
 			if (!config.multi())
 				toolBar.getItems().clear();
+
+			child.onDock(component, containerNode);
+			child.docked.setValue(true);
+			component.onChildDocked(child, containerNode);
 
 			toolBar.getItems().add(child.getNode());
 		}
@@ -134,20 +146,9 @@ public class FX {
 	private static void addLifeCycleListeners(View component, Node viewTarget, ObservableList children) {
 		ListChangeListener listener = change -> {
 			while (change.next()) {
-				if (change.wasAdded()) {
-					change.getAddedSubList().forEach(node -> {
-						View child = (View) (node instanceof Node ? Component.getComponent((Node) node) : Component.getComponent((Tab) node));
-						if (child != null) {
-							child.onDock(component, viewTarget);
-							child.docked.setValue(true);
-							component.onChildDocked(child, viewTarget);
-						}
-					});
-				}
-
 				if (change.wasRemoved()) {
 					change.getRemoved().forEach(node -> {
-						View child = (View) (node instanceof Node ? Component.getComponent((Node) node) : Component.getComponent((Tab) node));
+						UIComponent child = node instanceof Node ? Component.getComponent((Node) node) : Component.getComponent((Tab) node);
 						if (child != null) {
 							child.onUndock(component, viewTarget);
 							child.docked.setValue(false);
@@ -191,18 +192,17 @@ public class FX {
 	}
 
 	/**
-	 * Dock Views and Fragments into any registered UIContainer fields on the given Component
+	 * Dock Views and Fragments into any registered UIContainer fields in the given View
 	 */
 	static void fillUIContainers(UIComponent component) {
 		for (Field field : component.getClass().getDeclaredFields()) {
+
 			UIContainer config = field.getAnnotation(UIContainer.class);
 
 			if (config != null) {
 				for (Class<? extends UIComponent> autoload : config.load()) {
-					if (View.class.isAssignableFrom(autoload)) {
-						View view = InjectionContext.get((Class<? extends View>) autoload);
-						dock(view, component, component.getNode());
-					}
+					UIComponent child = InjectionContext.get(autoload);
+					dock(child, component, component.getNode());
 				}
 			}
 		}
