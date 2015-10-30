@@ -27,6 +27,7 @@ public abstract class Component {
 	public View toView() {
 		return (View) this;
 	}
+	public UIComponent toUIComponent() { return (UIComponent) this; }
 
 	protected void fire(FXEvent event) {
 		event.setSource(this);

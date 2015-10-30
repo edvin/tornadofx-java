@@ -9,15 +9,20 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ViewTarget {
+public @interface UIContainer {
 	/**
-	 * The name of the view target. If no value, default to the field name.
+	 * The name of the container, used as targets for docking operations. If no value, default to the field name.
 	 *
 	 * @see View#onDock(View, Node)
 	 * @see View#dockIn(String)
 	 * @see View#onChildDocked(UIComponent, Node)
 	 */
-	String value() default "";
+	String name() default "";
+
+	/**
+	 * List of UI Components (Views and Fragments) to dock in this container when it is initialized
+	 */
+	Class<? extends UIComponent>[] load() default {};
 
 	/**
 	 * View Targets either support multiple child Components or just one. For Single View Targets, existing

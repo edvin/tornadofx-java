@@ -43,14 +43,6 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 		return docked;
 	}
 
-	protected void onDock(View view, Node node) {
-
-	}
-
-	protected void onUndock(View view, Node node) {
-
-	}
-
 	/**
 	 * Execute action when the enter key is pressed or the mouse is double clicked
 	 *
@@ -113,7 +105,11 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 	public void dockIn(String viewTarget) {
 		FX.dock(this, viewTarget);
 	}
-    
+
+	public void dockIn(String name, UIContainer container, Node node) {
+		FX.dock(this, name);
+	}
+
 	public boolean isDocked() {
 		return getNode().getParent() != null;
 	}

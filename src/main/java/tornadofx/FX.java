@@ -16,36 +16,58 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static tornadofx.ReflectionTools.*;
+import static tornadofx.ReflectionTools.getFieldValue;
+import static tornadofx.ReflectionTools.getFxChildren;
 
 @SuppressWarnings("unchecked")
 public class FX {
-	private static final Map<String, ViewTargetContainer> viewTargets = new HashMap<>();
+	private static final Map<String, UIContainerRef> namedUIContainers = new HashMap<>();
 	static final ExecutorService executor = Executors.newCachedThreadPool();
 	static Stage primaryStage;
 
-	public static void dock(UIComponent component, String target) {
-		ViewTargetContainer container = viewTargets.get(target);
-		dock(component, container);
+	static void dock(UIComponent component, String name) {
+		UIContainerRef ref = namedUIContainers.get(name);
+
+		if (ref == null) {
+			String error = String.format("Unable to dock %s in unknown UIContainer '%s'", component, name);
+			EventBus.publishError(component, new IllegalArgumentException(error));
+		} else {
+			dock(component, ref.component, ref.node);
+		}
 	}
 
-	private static void dock(UIComponent child, ViewTargetContainer container) {
-		Node viewTarget = container.target;
+	static void dock(UIComponent child, UIComponent component, Node containerNode) {
+		UIContainer config = null;
+
+		for (Field field : component.getClass().getDeclaredFields()) {
+			if (field.getType().isAssignableFrom(containerNode.getClass())) {
+				if (containerNode.equals(ReflectionTools.getFieldValue(component, field))) {
+					config = field.getAnnotation(UIContainer.class);
+					break;
+				}
+			}
+		}
+
+		if (config == null) {
+			String error = String.format("Unable to find UIContainer node %s in UIComponent %s", containerNode, component);
+			EventBus.publishError(component, new IllegalArgumentException(error));
+			return;
+		}
 
 		if (child.isDocked())
 			child.undock();
 
-		if (viewTarget instanceof Pane) {
-			Pane pane = (Pane) viewTarget;
+		if (containerNode instanceof Pane) {
+			Pane pane = (Pane) containerNode;
 
-			if (!container.config.multi())
+			if (!config.multi())
 				pane.getChildren().clear();
 
 			pane.getChildren().add(child.getNode());
-		} else if (viewTarget instanceof TabPane) {
-			TabPane tabPane = (TabPane) viewTarget;
+		} else if (containerNode instanceof TabPane) {
+			TabPane tabPane = (TabPane) containerNode;
 
-			if (!container.config.multi())
+			if (!config.multi())
 				tabPane.getTabs().clear();
 
 			Tab tab = new Tab();
@@ -54,40 +76,56 @@ public class FX {
 			tab.textProperty().bindBidirectional(child.titleProperty());
 			tabPane.getTabs().add(tab);
 			tabPane.getSelectionModel().select(tab);
-		} else if (viewTarget instanceof ToolBar) {
-			ToolBar toolBar = (ToolBar) viewTarget;
+		} else if (containerNode instanceof ToolBar) {
+			ToolBar toolBar = (ToolBar) containerNode;
 
-			if (!container.config.multi())
+			if (!config.multi())
 				toolBar.getItems().clear();
 
 			toolBar.getItems().add(child.getNode());
 		}
 
-		if (container.config.updateTitle()) {
-			container.component.titleProperty().unbind();
-			container.component.titleProperty().bind(child.titleProperty());
+		if (config.updateTitle()) {
+			component.titleProperty().unbind();
+			component.titleProperty().bind(child.titleProperty());
 		}
 
 	}
 
 	/**
-	 * Register ViewTargets and hook listeners for onDock, onUndock, onChildDocked and onChildUndocked
-	 * @param component The component to look for ViewTargets in
+	 * Register UIContainers and hook listeners for onDock, onUndock, onChildDocked and onChildUndocked
+	 * <p/>
+	 * Make UIContainers available for dock operations by name.
+	 * <p/>
+	 * If name is not specified, the field name of the declaration is used.
+	 *
+	 * @param component The component to look for UIContainers in
 	 */
-	static void registerViewTargets(View component) {
+	static void registerUIContainers(View component) {
 		for (Field field : component.getClass().getDeclaredFields()) {
-			ViewTarget vt = field.getAnnotation(ViewTarget.class);
+			UIContainer config = field.getAnnotation(UIContainer.class);
 
-			if (vt != null && Node.class.isAssignableFrom(field.getType())) {
-				Node viewTarget = getFieldValue(component, field);
-				ViewTargetContainer container = new ViewTargetContainer(component, viewTarget, vt);
-				String targetName = vt.value().isEmpty() ? field.getName() : vt.value();
-				viewTargets.put(targetName, container);
+			if (config != null && Node.class.isAssignableFrom(field.getType())) {
+				Node node = getFieldValue(component, field);
 
-				ObservableList children = getFxChildren(viewTarget);
+				UIContainerRef ref = new UIContainerRef(component, node);
+
+				String name = config.name().isEmpty() ? field.getName() : config.name();
+
+				if (namedUIContainers.containsKey(name)) {					String error = String.format("%s tried to register already occupied UIContainer name '%s'. " +
+						"The registration was skipped. Change the name to avoid collision with %s.",
+						component, name, namedUIContainers.get(name));
+
+					EventBus.publishError(component, new IllegalArgumentException(error));
+				} else {
+					namedUIContainers.put(name, ref);
+				}
+
+
+				ObservableList children = getFxChildren(node);
 
 				if (children != null)
-					addLifeCycleListeners(component, viewTarget, children);
+					addLifeCycleListeners(component, node, children);
 			}
 		}
 	}
@@ -109,7 +147,7 @@ public class FX {
 
 				if (change.wasRemoved()) {
 					change.getRemoved().forEach(node -> {
-                        View child = (View) (node instanceof Node ? Component.getComponent((Node) node) : Component.getComponent((Tab) node));
+						View child = (View) (node instanceof Node ? Component.getComponent((Node) node) : Component.getComponent((Tab) node));
 						if (child != null) {
 							child.onUndock(component, viewTarget);
 							child.docked.setValue(false);
@@ -126,7 +164,7 @@ public class FX {
 	 * Run in correct Thread
 	 *
 	 * @param invocation The invocation to perform
-	 * @param source The target component
+	 * @param source     The target component
 	 * @param isFxThread Are we running in the FX Thread?
 	 */
 	static void submit(ThrowableRunnable invocation, Component source, Boolean isFxThread) {
@@ -141,26 +179,43 @@ public class FX {
 	static Runnable errorReportingRunnable(Component source, ThrowableRunnable runnable) {
 		return () -> InjectionContext.catchAndPublishError(source, runnable);
 	}
+
 	/**
 	 * Run in correct Thread
 	 *
 	 * @param invocation The invocation to perform
-	 * @param source The source component
+	 * @param source     The source component
 	 */
 	static void submit(ThrowableRunnable invocation, Component source) {
 		submit(invocation, source, Platform.isFxApplicationThread());
 	}
 
-	@SuppressWarnings("unchecked")
-	private static class ViewTargetContainer {
-		public UIComponent component;
-		public Node target;
-		public ViewTarget config;
+	/**
+	 * Dock Views and Fragments into any registered UIContainer fields on the given Component
+	 */
+	static void fillUIContainers(UIComponent component) {
+		for (Field field : component.getClass().getDeclaredFields()) {
+			UIContainer config = field.getAnnotation(UIContainer.class);
 
-		public ViewTargetContainer(UIComponent owner, Node target, ViewTarget config) {
-			this.component = owner;
-			this.target = target;
-			this.config = config;
+			if (config != null) {
+				for (Class<? extends UIComponent> autoload : config.load()) {
+					if (View.class.isAssignableFrom(autoload)) {
+						View view = InjectionContext.get((Class<? extends View>) autoload);
+						dock(view, component, component.getNode());
+					}
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private static class UIContainerRef {
+		public UIComponent component;
+		public Node node;
+
+		public UIContainerRef(UIComponent component, Node node) {
+			this.component = component;
+			this.node = node;
 		}
 	}
 }

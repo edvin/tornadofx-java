@@ -33,17 +33,19 @@ class InjectionContext {
 		}
 
 		components.stream()
-			.forEach(injectable -> {
-				if (injectable.isView())
-					FX.registerViewTargets(injectable.toView());
+			.forEach(component -> {
+				if (component.isView())
+					FX.registerUIContainers(component.toView());
 
-				if (EventCapable.class.isAssignableFrom(injectable.getClass()))
-					registerEventListeners((EventCapable) injectable);
+				if (EventCapable.class.isAssignableFrom(component.getClass()))
+					registerEventListeners((EventCapable) component);
 
-				inject(injectable);
+				inject(component);
 			});
 
 		components.forEach(InjectionContext::postConstruct);
+
+		components.stream().filter(Component::isUIComponent).map(Component::toUIComponent).forEach(FX::fillUIContainers);
 
 		components.forEach(InjectionContext::postInit);
 
@@ -76,7 +78,6 @@ class InjectionContext {
 
 		if (injectable.isUIComponent()) {
 			UIComponent component = (UIComponent) injectable;
-
 
 			catchAndPublishError(component, () -> {
 				Node node = component.createNode();
@@ -129,6 +130,7 @@ class InjectionContext {
 		for (Field field : component.getClass().getDeclaredFields()) {
 			if (Component.class.isAssignableFrom(field.getType())) {
 				Inject inject = field.getAnnotation(Inject.class);
+
 				if (inject != null)
 					setFieldValue(component, field, singletons.get(field.getType()));
 			}
@@ -148,10 +150,18 @@ class InjectionContext {
 
 		for (Field field : type.getDeclaredFields()) {
 			Inject inject = field.getAnnotation(Inject.class);
+
 			if (inject != null && Component.class.isAssignableFrom(field.getType())) {
 				Class<? extends Component> fieldType = (Class<? extends Component>) field.getType();
 				scanForInjectables(injectables, fieldType);
 				injectables.add(fieldType);
+			}
+
+			UIContainer uiContainer = field.getAnnotation(UIContainer.class);
+
+			if (uiContainer != null) {
+				for (Class<? extends UIComponent> autoload : uiContainer.load())
+					scanForInjectables(injectables, autoload);
 			}
 		}
 	}
