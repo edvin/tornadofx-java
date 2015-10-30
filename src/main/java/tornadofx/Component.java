@@ -2,6 +2,7 @@ package tornadofx;
 
 import javafx.concurrent.Task;
 import javafx.scene.Node;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -159,5 +160,9 @@ public abstract class Component {
 
 	private Path getPropertyPath() {
 		return Paths.get(getClass().getName().concat(".tornadofx.properties"));
+	}
+
+	public Stage getPrimaryStage() {
+		return FX.primaryStage;
 	}
 }

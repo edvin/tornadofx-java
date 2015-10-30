@@ -8,6 +8,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import static tornadofx.ReflectionTools.*;
 public class FX {
 	private static final Map<String, ViewTargetContainer> viewTargets = new HashMap<>();
 	static final ExecutorService executor = Executors.newCachedThreadPool();
+	static Stage primaryStage;
 
 	public static void dock(UIComponent component, String target) {
 		ViewTargetContainer container = viewTargets.get(target);
