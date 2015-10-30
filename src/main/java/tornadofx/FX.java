@@ -98,7 +98,7 @@ public class FX {
 			while (change.next()) {
 				if (change.wasAdded()) {
 					change.getAddedSubList().forEach(node -> {
-						View child = getFxComponent(node);
+						View child = (View) (node instanceof Node ? Component.getComponent((Node) node) : Component.getComponent((Tab) node));
 						if (child != null) {
 							child.onDock(component, viewTarget);
 							child.docked.setValue(true);
@@ -109,7 +109,7 @@ public class FX {
 
 				if (change.wasRemoved()) {
 					change.getRemoved().forEach(node -> {
-						View child = getFxComponent(node);
+                        View child = (View) (node instanceof Node ? Component.getComponent((Node) node) : Component.getComponent((Tab) node));
 						if (child != null) {
 							child.onUndock(component, viewTarget);
 							child.docked.setValue(false);

@@ -2,6 +2,7 @@ package tornadofx;
 
 import javafx.concurrent.Task;
 import javafx.scene.Node;
+import javafx.scene.control.Tab;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -165,4 +166,13 @@ public abstract class Component {
 	public Stage getPrimaryStage() {
 		return FX.primaryStage;
 	}
+
+    public static UIComponent getComponent(Node node) {
+        return (UIComponent) node.getProperties().get("fxcomponent");
+    }
+
+    public static UIComponent getComponent(Tab tab) {
+        return getComponent(tab.getContent());
+    }
+
 }

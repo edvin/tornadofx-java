@@ -113,7 +113,7 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 	public void dockIn(String viewTarget) {
 		FX.dock(this, viewTarget);
 	}
-
+    
 	public boolean isDocked() {
 		return getNode().getParent() != null;
 	}

@@ -41,14 +41,6 @@ class ReflectionTools {
 		return null;
 	}
 
-	static View getFxComponent(Object fxElem) {
-		if (fxElem instanceof Node)
-			return (View) ((Node) fxElem).getProperties().get("fxcomponent");
-		else if (fxElem instanceof Tab)
-			return (View) ((Tab) fxElem).getContent().getProperties().get("fxcomponent");
-		return null;
-	}
-
 	static <Type> Type create(Class<Type> type) {
 		try {
 			return type.newInstance();
