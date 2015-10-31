@@ -215,7 +215,8 @@ public class FX {
 			if (config != null) {
 				for (Class<? extends UIComponent> autoload : config.load()) {
 					UIComponent child = InjectionContext.get(autoload);
-					dock(child, component, component.getNode());
+					Node node = ReflectionTools.getFieldValue(component, field);
+					dock(child, component, node);
 				}
 			}
 		}

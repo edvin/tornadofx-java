@@ -1,5 +1,6 @@
 package tornadofx;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
@@ -29,6 +30,8 @@ import java.util.stream.Stream;
 
 @SuppressWarnings({"unchecked", "unused"})
 public class Rest extends Controller {
+	ObservableList<HttpRequestBase> ongoingRequests = FXCollections.observableArrayList();
+
 	@Getter private String baseURI;
 	@Getter @Setter private HttpHost host;
 	@Getter @Setter private CloseableHttpClient client;
@@ -318,9 +321,9 @@ public class Rest extends Controller {
 					heer.setEntity(new StringEntity(data.toString()));
 				}
 
-				System.out.println("Executing " + request);
+				ongoingRequests.add(request);
+				Thread.sleep(5000);
 				response = client.execute(host, request, clientContext);
-				System.out.println("Response returned for " + request);
 
 				if (returnType != null) {
 					try (JsonReader reader = Json.createReader(response.getEntity().getContent())) {
@@ -344,6 +347,8 @@ public class Rest extends Controller {
 				} else {
 					return new JsonObjectResult(response, ex);
 				}
+			} finally {
+				ongoingRequests.remove(request);
 			}
 		}
 
