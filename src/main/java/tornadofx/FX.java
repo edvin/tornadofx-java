@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import static tornadofx.ReflectionTools.getFieldValue;
 import static tornadofx.ReflectionTools.getFxChildren;
@@ -22,7 +23,18 @@ import static tornadofx.ReflectionTools.getFxChildren;
 @SuppressWarnings("unchecked")
 public class FX {
 	private static final Map<String, UIContainerRef> namedUIContainers = new HashMap<>();
-	static final ExecutorService executor = Executors.newCachedThreadPool();
+
+	/**
+	 * 	Executor uses daemon threads so the app will exit properly when the last window is closed.
+	 * 	This executor should therefore not be used to run tasks that must complete before the app
+	 * 	can exit after the last window is closed. For GUI app tasks this is probably a good default.
+	 */
+	static final ExecutorService executor = Executors.newCachedThreadPool(job -> {
+		Thread thread = Executors.defaultThreadFactory().newThread(job);
+		thread.setDaemon(true);
+		return thread;
+	});
+
 	static Stage primaryStage;
 
 	static void dock(UIComponent component, String name) {
@@ -79,11 +91,12 @@ public class FX {
 
 			tab.textProperty().bind(child.titleProperty());
 			tabPane.getTabs().add(tab);
-			tabPane.getSelectionModel().select(tab);
+
 
 			child.onDockInTab(component, (TabPane) containerNode, tab);
 			child.docked.setValue(true);
 			component.onChildDocked(child, containerNode);
+
 		} else if (containerNode instanceof ToolBar) {
 			ToolBar toolBar = (ToolBar) containerNode;
 
