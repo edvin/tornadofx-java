@@ -156,13 +156,6 @@ class InjectionContext {
 				scanForInjectables(injectables, fieldType);
 				injectables.add(fieldType);
 			}
-
-			UIContainer uiContainer = field.getAnnotation(UIContainer.class);
-
-			if (uiContainer != null) {
-				for (Class<? extends UIComponent> autoload : uiContainer.load())
-					scanForInjectables(injectables, autoload);
-			}
 		}
 	}
 

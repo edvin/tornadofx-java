@@ -54,18 +54,18 @@ public abstract class Component {
 		return async(() -> { backroundOperation.run(); return null; }, null, null);
 	}
 
-	protected <T> Task<T> async(Callable<T> backroundOperation, Consumer<T> uiConsumer, Consumer<Throwable> errorConsumer) {
+	protected <T> Task<T> async(Callable<T> backroundOperation, Consumer<T> successHandler, Consumer<Throwable> errorHandler) {
 		Task<T> task = new Task<T>() {
 			protected T call() throws Exception {
 				return backroundOperation.call();
 			}
 		};
 
-		if (uiConsumer != null)
-			task.setOnSucceeded(event -> uiConsumer.accept(task.getValue()));
+		if (successHandler != null)
+			task.setOnSucceeded(event -> successHandler.accept(task.getValue()));
 
-		if (errorConsumer != null)
-			task.setOnFailed(event -> errorConsumer.accept(task.getException()));
+		if (errorHandler != null)
+			task.setOnFailed(event -> errorHandler.accept(task.getException()));
 		else
 			task.setOnFailed(event -> EventBus.publishError(this, event.getSource().getException()));
 

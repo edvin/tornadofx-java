@@ -48,20 +48,32 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 	 * Execute action when the enter key is pressed or the mouse is double clicked
 	 *
 	 * @param node The node to attach the event to
-	 * @param runnable The runnable to execute on select
+	 * @param action The runnable to execute on select
 	 */
-	protected void onUserSelect(Node node, ThrowableRunnable runnable) {
+	protected void onUserSelect(Node node, ThrowableRunnable action) {
 		node.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
 			if (event.getClickCount() == 2)
-				FX.errorReportingRunnable(this, runnable).run();
+				FX.errorReportingRunnable(this, action).run();
 		});
 
 		node.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			if (event.getCode() == KeyCode.ENTER && !event.isMetaDown())
-				FX.errorReportingRunnable(this, runnable).run();
+				FX.errorReportingRunnable(this, action).run();
 		});
 	}
 
+	/**
+	 * Execute action when Shortcut-Enter is pressed inside the given Node
+	 * @param node The node to attach the event to
+	 * @param action The action to perform on Shortcut-Enter
+	 */
+	protected  void onShortcutEnter(Node node, ThrowableRunnable action) {
+		node.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+			if (event.getCode() == KeyCode.ENTER && event.isShortcutDown())
+				FX.errorReportingRunnable(this, action).run();
+		});
+
+	}
 	/**
 	 * Execute action when the delete key is pressed
 	 *
@@ -70,7 +82,7 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 	 */
 	protected void onUserDelete(Node node, ThrowableRunnable runnable) {
 		node.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-			if (event.getCode() == KeyCode.DELETE)
+			if (event.getCode() == KeyCode.BACK_SPACE)
 				FX.errorReportingRunnable(this, runnable).run();
 		});
 	}
