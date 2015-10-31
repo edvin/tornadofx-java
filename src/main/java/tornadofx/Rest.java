@@ -322,7 +322,6 @@ public class Rest extends Controller {
 				}
 
 				ongoingRequests.add(request);
-				Thread.sleep(5000);
 				response = client.execute(host, request, clientContext);
 
 				if (returnType != null) {
