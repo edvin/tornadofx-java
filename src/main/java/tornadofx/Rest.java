@@ -17,6 +17,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.util.EntityUtils;
 
 import javax.json.*;
 import java.net.URI;
@@ -72,6 +73,7 @@ public class Rest extends Controller {
 		return RequestConfig.custom()
 			.setSocketTimeout(5000)
 			.setConnectTimeout(5000)
+			.setConnectionRequestTimeout(5000)
 			.build();
 	}
 
@@ -316,7 +318,9 @@ public class Rest extends Controller {
 					heer.setEntity(new StringEntity(data.toString()));
 				}
 
+				System.out.println("Executing " + request);
 				response = client.execute(host, request, clientContext);
+				System.out.println("Response returned for " + request);
 
 				if (returnType != null) {
 					try (JsonReader reader = Json.createReader(response.getEntity().getContent())) {
@@ -327,6 +331,8 @@ public class Rest extends Controller {
 						}
 					}
 				}
+
+				EntityUtils.consume(response.getEntity());
 
 				return new JsonEmptyResult(response);
 
