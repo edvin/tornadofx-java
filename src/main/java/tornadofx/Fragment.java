@@ -6,9 +6,10 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.Getter;
 
 public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeType> {
-	private Stage modalStage;
+	@Getter private Stage modalStage;
 
 	public void openModal() {
 		if (modalStage != null)
@@ -18,6 +19,7 @@ public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeTy
 			throw new IllegalArgumentException("Only Parent Fragments can be opened in a Modal");
 
 		modalStage = new Stage();
+		modalStage.setResizable(false);
 		modalStage.titleProperty().bind(titleProperty());
 		modalStage.initModality(Modality.WINDOW_MODAL);
 

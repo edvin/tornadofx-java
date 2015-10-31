@@ -2,7 +2,9 @@ package tornadofx;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -18,11 +20,19 @@ public class DefaultErrorHandler extends Controller {
 			alert.setResizable(true);
 			String pos = event.getError().getStackTrace()[0].toString();
 			alert.setHeaderText("Error in " + pos);
+
 			TextArea textarea = new TextArea();
 			textarea.setPrefRowCount(20);
 			textarea.setPrefColumnCount(50);
 			textarea.setText(stringFromError(event.getError()));
-			alert.getDialogPane().setContent(textarea);
+
+			Label cause = new Label(event.getError().getCause() != null ? event.getError().getCause().getMessage() : "");
+			cause.setStyle("-fx-font-weight: bold");
+
+			VBox content = new VBox();
+			content.getChildren().addAll(cause, textarea);
+
+			alert.getDialogPane().setContent(content);
 			alert.showAndWait();
 		});
 	}
