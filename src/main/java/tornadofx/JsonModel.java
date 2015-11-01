@@ -28,6 +28,16 @@ public interface JsonModel {
 	}
 
 	/**
+	 * Copy all properties from the given source object to this object by converting to JSON and then updating this object.
+	 * @param source The source object to extract properties from
+	 */
+	default void update(JsonModel source) {
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		source.toJSON(builder);
+		updateModel(builder.build());
+	}
+
+	/**
 	 * Clone this model object by creating a new object of the same type and copy over all the model properties.
 	 *
 	 * @param <T> The type of object
