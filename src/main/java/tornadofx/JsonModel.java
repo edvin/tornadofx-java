@@ -4,6 +4,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
+@SuppressWarnings("unchecked")
 public interface JsonModel {
 	/**
 	 * Fetch JSON values and update the model properties
@@ -38,12 +39,12 @@ public interface JsonModel {
 	}
 
 	/**
-	 * Clone this model object by creating a new object of the same type and copy over all the model properties.
+	 * Duplicate this model object by creating a new object of the same type and copy over all the model properties.
 	 *
 	 * @param <T> The type of object
 	 * @return A new object of type T with the model properties of this object
 	 */
-	default <T extends JsonModel> T clone() {
+	default <T extends JsonModel> T duplicate() {
 		try {
 			T clone = (T) getClass().newInstance();
 			JsonObjectBuilder builder = Json.createObjectBuilder();

@@ -3,10 +3,11 @@ package tornadofx;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -147,4 +148,24 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 
 	}
 
+	public MenuItem addContextMenuItem(Control control, String text, Node graphic, EventHandler<ActionEvent> action) {
+		MenuItem item = new MenuItem(text);
+		item.setGraphic(graphic);
+		item.setOnAction(action);
+
+		addContextMenuItem(control, item);
+
+		return item;
+	}
+
+	public void addContextMenuItem(Control control, MenuItem item) {
+		ContextMenu menu = control.getContextMenu();
+
+		if (menu == null) {
+			menu = new ContextMenu();
+			control.setContextMenu(menu);
+		}
+
+		menu.getItems().add(item);
+	}
 }
