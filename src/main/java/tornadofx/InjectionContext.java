@@ -76,7 +76,7 @@ class InjectionContext {
 			}
 		}
 
-		if (injectable.isUIComponent()) {
+		if (constructed && injectable.isUIComponent()) {
 			UIComponent component = (UIComponent) injectable;
 
 			catchAndPublishError(component, () -> {

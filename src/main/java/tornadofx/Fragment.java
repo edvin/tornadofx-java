@@ -1,9 +1,11 @@
 package tornadofx;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -24,16 +26,16 @@ public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeTy
 		modalStage.initModality(Modality.WINDOW_MODAL);
 
 		Scene scene = new Scene((Parent) getNode());
-		modalStage.setScene(scene);
-		modalStage.show();
 
-		getNode().requestFocus();
-
-		scene.setOnKeyPressed(event -> {
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 			if (event.getCode() == KeyCode.ESCAPE)
 				closeModal();
 		});
 
+		modalStage.setScene(scene);
+		modalStage.show();
+
+		Platform.runLater(() -> getNode().requestFocus());
 	}
 
 	public void closeModal() {
