@@ -161,7 +161,16 @@ public abstract class Component {
 	}
 
 	private Path getPropertyPath() {
-		return Paths.get(getClass().getName().concat(".tornadofx.properties"));
+        Path conf = Paths.get("conf");
+
+        if (!Files.exists(conf))
+            try {
+                Files.createDirectories(conf);
+            } catch (IOException e) {
+                fire(new UIError(e));
+            }
+
+        return conf.resolve(getClass().getName().concat(".properties"));
 	}
 
 	public Stage getPrimaryStage() {
