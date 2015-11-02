@@ -44,7 +44,7 @@ public interface JsonModel {
 	 * @param <T> The type of object
 	 * @return A new object of type T with the model properties of this object
 	 */
-	default <T extends JsonModel> T duplicate() {
+	default <T extends JsonModel> T copy() {
 		try {
 			T clone = (T) getClass().newInstance();
 			JsonObjectBuilder builder = Json.createObjectBuilder();
