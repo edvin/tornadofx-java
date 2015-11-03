@@ -1,6 +1,5 @@
 package tornadofx;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.Getter;
@@ -235,7 +234,7 @@ public class Rest extends Controller {
 			this.error = error;
 		}
 
-		public Void getData() {
+        public Void getData() {
 			return null;
 		}
 

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class Launcher extends Application {
     private static FXManifest manifest;
     private static Application app;
@@ -77,8 +78,8 @@ public class Launcher extends Application {
     }
 
 
-    public Task<Void> sync() throws IOException {
-        Task task = new Task() {
+    public Task sync() throws IOException {
+        return new Task() {
             protected Object call() throws Exception {
                 List<LibraryFile> needsUpdate = manifest.files.stream().filter(LibraryFile::needsUpdate).collect(Collectors.toList());
                 Long totalBytes = needsUpdate.stream().mapToLong(f -> f.size).sum();
@@ -116,8 +117,6 @@ public class Launcher extends Application {
                 return null;
             }
         };
-
-        return task;
     }
 
     public void stop() throws Exception {

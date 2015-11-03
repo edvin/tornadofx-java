@@ -52,8 +52,19 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 	 * @param action The runnable to execute on select
 	 */
 	protected void onUserSelect(Node node, ThrowableRunnable action) {
+        onUserSelect(node, 2, action);
+    }
+
+	/**
+	 * Execute action when the enter key is pressed or the mouse is clicked
+	 *
+	 * @param node The node to attach the event to
+	 * @param clickCount The number of mouse clicks to trigger the action
+	 * @param action The runnable to execute on select
+	 */
+	protected void onUserSelect(Node node, Integer clickCount, ThrowableRunnable action) {
 		node.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-			if (event.getClickCount() == 2)
+			if (event.getClickCount() == clickCount)
 				FX.errorReportingRunnable(this, action).run();
 		});
 
