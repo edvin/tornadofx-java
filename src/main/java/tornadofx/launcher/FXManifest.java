@@ -18,5 +18,9 @@ public class FXManifest {
     String launchClass;
     @XmlElement(name = "lib")
     List<LibraryFile> files = new ArrayList<>();
+
+    public URI getFXAppURI() {
+        return uri.resolve("fxapp.xml");
+    }
 }
 

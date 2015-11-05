@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class Launcher extends Application {
     private static FXManifest manifest;
     private static Application app;
+    private static boolean offline = false;
 
     public void start(Stage primaryStage) throws Exception {
         ProgressBar progressBar = new ProgressBar();
@@ -83,6 +84,9 @@ public class Launcher extends Application {
     public Task sync() throws IOException {
         return new Task() {
             protected Object call() throws Exception {
+                if (offline)
+                    return null;
+
                 List<LibraryFile> needsUpdate = manifest.files.stream().filter(LibraryFile::needsUpdate).collect(Collectors.toList());
                 Long totalBytes = needsUpdate.stream().mapToLong(f -> f.size).sum();
                 Long totalWritten = 0L;
@@ -111,7 +115,9 @@ public class Launcher extends Application {
                     JAXB.marshal(manifest, mfstream);
 
                     Path manifestPath = Paths.get("fxapp.xml");
+
                     byte[] data = mfstream.toByteArray();
+
                     if (Files.notExists(manifestPath) || !Arrays.equals(Files.readAllBytes(manifestPath), data))
                         Files.write(manifestPath, data);
                 }
@@ -142,9 +148,27 @@ public class Launcher extends Application {
     }
 
     public static void main(String[] args) throws Exception {
-        URI uri = args.length > 0 ? URI.create(args[0]).resolve("fxapp.xml") : Paths.get("fxapp.xml").toUri();
-        manifest = JAXB.unmarshal(uri, FXManifest.class);
+        // If URI given explicitly, load from there
+        if (args.length > 0) {
+            loadManifest(URI.create(args[0]).resolve("fxapp.xml"));
+        } else {
+            // If no uri given, load from fxapp.fxml and try to reload from the uri given in the manifest
+            URI localURI = Paths.get("fxapp.xml").toUri();
+            loadManifest(localURI);
+
+            try {
+                loadManifest(manifest.getFXAppURI());
+            } catch (Exception networkError) {
+                networkError.printStackTrace();
+                offline = true;
+            }
+        }
+
         launch();
+    }
+
+    private static void loadManifest(URI uri) {
+        manifest = JAXB.unmarshal(uri, FXManifest.class);
     }
 
 }
