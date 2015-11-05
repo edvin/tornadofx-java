@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import javax.xml.bind.JAXB;
 import java.io.*;
@@ -41,6 +42,7 @@ public class Launcher extends Application {
         root.setFillWidth(true);
 
         Scene scene = new Scene(root);
+	    primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.setScene(scene);
         primaryStage.setTitle(manifest.name);
         primaryStage.show();

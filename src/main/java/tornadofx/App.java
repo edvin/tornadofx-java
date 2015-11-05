@@ -1,7 +1,7 @@
 package tornadofx;
 
 import javafx.application.Application;
-import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -22,24 +22,32 @@ public abstract class App extends Application {
 	public void start(Stage stage) throws Exception {
 		FX.primaryStage = stage;
 
-		InjectionContext.get(getErrorHandlerClass());
+		Task<View<Pane>> init = new Task<View<Pane>>() {
+			protected View<Pane> call() throws Exception {
+				InjectionContext.get(getErrorHandlerClass());
+				return InjectionContext.get((Class<View<Pane>>) getRootViewClass());
+			}
+		};
 
-		View<Pane> rootView = InjectionContext.get((Class<View<Pane>>) getRootViewClass());
+		init.setOnFailed(event -> init.getException().printStackTrace());
 
-		stage.titleProperty().bind(rootView.titleProperty());
+		init.setOnSucceeded(event -> {
+			View<Pane> rootView = init.getValue();
+			Pane parent = rootView.getNode();
 
-		Pane parent = rootView.getNode();
+			if (parent == null) {
+				parent = new StackPane();
+				parent.getChildren().add(new Label("Failed to create root view, see log for details."));
+			}
 
-		if (parent == null) {
-			parent = new StackPane();
-			parent.getChildren().add(new Label("Failed to create root view, see log for details."));
-		}
+			stage.titleProperty().bind(rootView.titleProperty());
 
-		Scene scene = createInitialScene(parent, stage);
-		stage.setScene(scene);
-		stageReady(stage);
+			Scene scene = createInitialScene(rootView.getNode(), stage);
+			stage.setScene(scene);
+			stageReady(stage);
+		});
 
-		Platform.setImplicitExit(getImplicitExit());
+		new Thread(init).start();
 	}
 
 	public void stageReady(Stage stage) {
@@ -58,7 +66,4 @@ public abstract class App extends Application {
 		return Math.min(768, Screen.getPrimary().getVisualBounds().getHeight());
 	}
 
-	public boolean getImplicitExit() {
-		return true;
-	}
 }
