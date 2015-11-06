@@ -131,8 +131,8 @@ class InjectionContext {
 			if (Component.class.isAssignableFrom(field.getType())) {
 				Inject inject = field.getAnnotation(Inject.class);
 
-				if (inject != null)
-					setFieldValue(component, field, singletons.get(field.getType()));
+				if (inject != null && Component.class.isAssignableFrom(field.getType()))
+					setFieldValue(component, field, get((Class<Component>)field.getType()));
 			}
 		}
 	}

@@ -62,10 +62,22 @@ public abstract class Component {
 		};
 
 		if (successHandler != null)
-			task.setOnSucceeded(event -> successHandler.accept(task.getValue()));
+			task.setOnSucceeded(event -> {
+				try {
+					successHandler.accept(task.getValue());
+				} catch (Exception ex) {
+					fire(new UIError(ex));
+				}
+			});
 
 		if (errorHandler != null)
-			task.setOnFailed(event -> errorHandler.accept(task.getException()));
+			task.setOnFailed(event -> {
+				try {
+					errorHandler.accept(task.getException());
+				} catch (Exception ex) {
+					fire(new UIError(ex));
+				}
+			});
 		else
 			task.setOnFailed(event -> EventBus.publishError(this, event.getSource().getException()));
 
@@ -177,8 +189,8 @@ public abstract class Component {
 		return FX.primaryStage;
 	}
 
-    public static UIComponent getComponent(Node node) {
-        return (UIComponent) node.getProperties().get("fxcomponent");
+    public static <T extends UIComponent> T getComponent(Node node) {
+        return (T) node.getProperties().get("fxcomponent");
     }
 
     public static UIComponent getComponent(Tab tab) {

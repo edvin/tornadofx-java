@@ -3,6 +3,7 @@ package tornadofx;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
+import java.time.LocalDate;
 
 @SuppressWarnings("unchecked")
 public interface JsonModel {
@@ -55,4 +56,17 @@ public interface JsonModel {
 			throw new RuntimeException(e);
 		}
 	}
+
+	default double getDouble(JsonObject json, String key, double defaultValue) {
+		return json.containsKey(key) ? json.getJsonNumber(key).doubleValue() : defaultValue;
+	}
+
+	default long getLong(JsonObject json, String key, long defaultValue) {
+		return json.containsKey(key) ? json.getJsonNumber(key).longValue() : defaultValue;
+	}
+
+	default LocalDate getLocalDate(JsonObject json, String key, LocalDate defaultValue) {
+		return json.containsKey(key) ? LocalDate.parse(json.getString(key)) : defaultValue;
+	}
+
 }

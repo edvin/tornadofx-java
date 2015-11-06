@@ -41,6 +41,10 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 		this.title.set(title);
 	}
 
+	public String getTitle() {
+		return title.get();
+	}
+
 	public ReadOnlyBooleanWrapper dockedProperty() {
 		return docked;
 	}
