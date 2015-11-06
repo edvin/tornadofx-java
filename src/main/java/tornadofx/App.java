@@ -21,6 +21,7 @@ public abstract class App extends Application {
 
 	public void start(Stage stage) throws Exception {
 		FX.primaryStage = stage;
+		FX.application = this;
 
 		Task<View<Pane>> init = new Task<View<Pane>>() {
 			protected View<Pane> call() throws Exception {

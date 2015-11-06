@@ -1,5 +1,6 @@
 package tornadofx;
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -23,6 +24,7 @@ import static tornadofx.ReflectionTools.getFxChildren;
 @SuppressWarnings("unchecked")
 public class FX {
 	private static final Map<String, UIContainerRef> namedUIContainers = new HashMap<>();
+	public static Application application;
 
 	/**
 	 * 	Executor uses daemon threads so the app will exit properly when the last window is closed.

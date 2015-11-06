@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings({"unchecked", "unused"})
 public class Rest extends Controller {
-	private static final AtomicLong atomicseq = new AtomicLong();
+	private final AtomicLong atomicseq = new AtomicLong();
 
 	ObservableList<HttpRequestBase> ongoingRequests = FXCollections.observableArrayList();
 
@@ -403,7 +403,7 @@ public class Rest extends Controller {
 	}
 
 	private boolean containsArray(String content) {
-		return content.matches("\\s*\\[.*");
+		return content.trim().startsWith("[");
 	}
 
 	public CredentialsProvider getCredentialsProvider() {
