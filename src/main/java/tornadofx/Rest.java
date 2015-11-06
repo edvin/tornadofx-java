@@ -25,6 +25,7 @@ import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -32,6 +33,8 @@ import java.util.stream.Stream;
 
 @SuppressWarnings({"unchecked", "unused"})
 public class Rest extends Controller {
+	private static final AtomicLong atomicseq = new AtomicLong();
+
 	ObservableList<HttpRequestBase> ongoingRequests = FXCollections.observableArrayList();
 
 	@Getter private String baseURI;
@@ -159,6 +162,7 @@ public class Rest extends Controller {
 		HttpResponse getResponse();
 		String getContent();
 		Exception getError();
+		long getSeq();
 
 		J getData();
 
@@ -197,6 +201,7 @@ public class Rest extends Controller {
 		@Getter private JsonArray data;
 		@Getter private Exception error;
 		@Getter private String content;
+		@Getter long seq;
 
 		public JsonArrayResult(HttpResponse response, Exception error) {
 			this.response = response;
@@ -231,6 +236,7 @@ public class Rest extends Controller {
 	public static class JsonEmptyResult implements JsonResult<JsonEmptyResult, Void> {
 		@Getter private final HttpResponse response;
 		@Getter private Exception error;
+		@Getter long seq;
 
 		public String getContent() {
 			return null;
@@ -257,6 +263,7 @@ public class Rest extends Controller {
 		@Getter private JsonObject data;
 		@Getter private Exception error;
 		@Getter private String content;
+		@Getter long seq;
 
 		public JsonObjectResult(HttpResponse response, JsonObject data, String content) {
 			this.response = response;
@@ -312,15 +319,26 @@ public class Rest extends Controller {
 		}
 
 		public JsonObjectResult one() {
-			return (JsonObjectResult) execute((Class<? extends JsonType>) JsonObject.class);
+			long seq = atomicseq.addAndGet(1L);
+
+			JsonObjectResult result = (JsonObjectResult) execute((Class<? extends JsonType>) JsonObject.class);
+			result.seq = seq;
+			return result;
 		}
 
 		public JsonArrayResult list() {
-			return (JsonArrayResult) execute((Class<? extends JsonType>) JsonArray.class);
+			long seq = atomicseq.addAndGet(1L);
+			JsonArrayResult result = (JsonArrayResult) execute((Class<? extends JsonType>) JsonArray.class);
+			result.seq = seq;
+			return result;
 		}
 
 		public JsonEmptyResult execute() {
-			return (JsonEmptyResult) execute(null);
+			long seq = atomicseq.addAndGet(1L);
+
+			JsonEmptyResult result = (JsonEmptyResult) execute(null);
+			result.seq = seq;
+			return result;
 		}
 
 		private JsonResult execute(Class<? extends JsonType> returnType) {
