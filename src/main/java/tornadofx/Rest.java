@@ -20,8 +20,11 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 import javax.json.*;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -154,7 +157,9 @@ public class Rest extends Controller {
 	@SuppressWarnings("unused")
 	public interface JsonResult<T, J> {
 		HttpResponse getResponse();
+		String getContent();
 		Exception getError();
+
 		J getData();
 
 		default boolean ok() {
@@ -191,15 +196,17 @@ public class Rest extends Controller {
 		@Getter private final HttpResponse response;
 		@Getter private JsonArray data;
 		@Getter private Exception error;
+		@Getter private String content;
 
 		public JsonArrayResult(HttpResponse response, Exception error) {
 			this.response = response;
 			this.error = error;
 		}
 
-		public JsonArrayResult(HttpResponse response, JsonArray data) {
+		public JsonArrayResult(HttpResponse response, JsonArray data, String content) {
 			this.response = response;
 			this.data = data;
+			this.content = content;
 		}
 
 		public Stream<JsonObject> stream() {
@@ -225,6 +232,10 @@ public class Rest extends Controller {
 		@Getter private final HttpResponse response;
 		@Getter private Exception error;
 
+		public String getContent() {
+			return null;
+		}
+
 		public JsonEmptyResult(HttpResponse response) {
 			this.response = response;
 		}
@@ -234,7 +245,7 @@ public class Rest extends Controller {
 			this.error = error;
 		}
 
-        public Void getData() {
+		public Void getData() {
 			return null;
 		}
 
@@ -245,10 +256,12 @@ public class Rest extends Controller {
 		@Getter private final HttpResponse response;
 		@Getter private JsonObject data;
 		@Getter private Exception error;
+		@Getter private String content;
 
-		public JsonObjectResult(HttpResponse response, JsonObject data) {
+		public JsonObjectResult(HttpResponse response, JsonObject data, String content) {
 			this.response = response;
 			this.data = data;
+			this.content = content;
 		}
 
 		public JsonObjectResult(HttpResponse response, Exception error) {
@@ -324,11 +337,30 @@ public class Rest extends Controller {
 				response = client.execute(host, request, clientContext);
 
 				if (returnType != null) {
-					try (JsonReader reader = Json.createReader(response.getEntity().getContent())) {
-						if (returnType.equals(JsonArray.class)) {
-							return new JsonArrayResult(response, reader.readArray());
+					String content = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
+
+					if (returnType.equals(JsonArray.class)) {
+						if (content == null || content.isEmpty())
+							return new JsonArrayResult(response, Json.createArrayBuilder().build(), content);
+
+						if (containsArray(content)) {
+							return new JsonArrayResult(response, readArray(content), content);
 						} else {
-							return new JsonObjectResult(response, reader.readObject());
+							JsonObject o = readObject(content);
+							return new JsonArrayResult(response, Json.createArrayBuilder().add(o).build(), content);
+						}
+					} else {
+						if (content == null || content.isEmpty())
+							return new JsonObjectResult(response, Json.createObjectBuilder().build(), content);
+
+						if (containsArray(content)) {
+							JsonArray a = readArray(content);
+							if (a.isEmpty())
+								return new JsonObjectResult(response, Json.createObjectBuilder().build(), content);
+							else
+								return new JsonObjectResult(response, a.getJsonObject(0), content);
+						} else {
+							return new JsonObjectResult(response, readObject(content), content);
 						}
 					}
 				}
@@ -352,11 +384,27 @@ public class Rest extends Controller {
 
 	}
 
+	private boolean containsArray(String content) {
+		return content.matches("\\s*\\[.*");
+	}
+
 	public CredentialsProvider getCredentialsProvider() {
 		return credentialsProvider;
 	}
 
 	public void setCredentialsProvider(CredentialsProvider credentialsProvider) {
 		this.credentialsProvider = credentialsProvider;
+	}
+
+	private JsonArray readArray(String content) throws IOException {
+		try (JsonReader reader = Json.createReader(new StringReader(content))) {
+			return reader.readArray();
+		}
+	}
+
+	private JsonObject readObject(String content) throws IOException {
+		try (JsonReader reader = Json.createReader(new StringReader(content))) {
+			return reader.readObject();
+		}
 	}
 }

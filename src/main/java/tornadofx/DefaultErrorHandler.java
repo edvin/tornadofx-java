@@ -18,8 +18,14 @@ public class DefaultErrorHandler extends Controller {
 			String errorMessage = event.getError().getMessage();
 			alert.setTitle(errorMessage != null ? errorMessage : "An error occured");
 			alert.setResizable(true);
-			String pos = event.getError().getStackTrace()[0].toString();
-			alert.setHeaderText("Error in " + pos);
+			StackTraceElement[] stacktrace = event.getError().getStackTrace();
+
+			if (stacktrace != null && stacktrace.length > 0) {
+				String pos = stacktrace[0].toString();
+				alert.setHeaderText("Error in " + pos);
+			} else {
+				alert.setHeaderText("Error in " + event.getSource());
+			}
 
 			TextArea textarea = new TextArea();
 			textarea.setPrefRowCount(20);
