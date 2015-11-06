@@ -330,7 +330,7 @@ public class Rest extends Controller {
 				if (data != null && request instanceof HttpEntityEnclosingRequestBase) {
 					HttpEntityEnclosingRequestBase heer = (HttpEntityEnclosingRequestBase) request;
 					heer.setHeader(new BasicHeader("Content-Type", "application/json"));
-					heer.setEntity(new StringEntity(data.toString()));
+					heer.setEntity(new StringEntity(data.toString(), StandardCharsets.UTF_8));
 				}
 
 				ongoingRequests.add(request);
