@@ -10,7 +10,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
 
-public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeType> {
+public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeType> implements EventCapable {
 	@Getter private Stage modalStage;
 
 	public void openModal() {

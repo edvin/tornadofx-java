@@ -83,7 +83,7 @@ class InjectionContext {
 				Node node = component.createNode();
 
 				if (node == null)
-					throw new IllegalArgumentException(String.format("%s did not return a Node from createView", injectable));
+					throw new IllegalArgumentException(String.format("%s did not return a Node from createNode", injectable));
 
 				component.nodeProperty().setValue(node);
 				FXResources.loadStyles(component);
