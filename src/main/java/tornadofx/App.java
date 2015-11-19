@@ -10,10 +10,10 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "ThrowableResultOfMethodCallIgnored"})
 public abstract class App extends Application {
 
-	public abstract <PaneType extends Pane, RootView extends View<PaneType>> Class<RootView> getRootViewClass();
+	public abstract Class<View> getRootViewClass();
 
 	public Class<? extends Component> getErrorHandlerClass() {
 		return DefaultErrorHandler.class;
@@ -43,7 +43,7 @@ public abstract class App extends Application {
 
 			stage.titleProperty().bind(rootView.titleProperty());
 
-			Scene scene = createInitialScene(rootView.getNode(), stage);
+			Scene scene = createInitialScene(rootView.getNode());
 			stage.setScene(scene);
 			stageReady(stage);
 		});
@@ -55,15 +55,15 @@ public abstract class App extends Application {
 		stage.show();
 	}
 
-	public Scene createInitialScene(Parent parent, Stage stage) {
-		return new Scene(parent, getInitialWidth(stage), getInitialHeight(stage));
+	public Scene createInitialScene(Parent parent) {
+		return new Scene(parent, getInitialWidth(), getInitialHeight());
 	}
 
-	public double getInitialWidth(Stage stage) {
+	public double getInitialWidth() {
 		return Math.min(1024, Screen.getPrimary().getVisualBounds().getWidth());
 	}
 
-	public double getInitialHeight(Stage stage) {
+	public double getInitialHeight() {
 		return Math.min(768, Screen.getPrimary().getVisualBounds().getHeight());
 	}
 

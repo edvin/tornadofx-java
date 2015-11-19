@@ -1,13 +1,12 @@
 package tests
 
-import javafx.scene.layout.Pane
-import tornadofx.App
+import javafx.scene.Node
 import tests.views.MyKotlinView
+import tornadofx.App
 import tornadofx.View
 
 public class TestApp : App() {
 
-    override fun <PaneType : Pane?, RootView : View<PaneType>?> getRootViewClass(): Class<RootView>? {
-        return MyKotlinView::class.java as Class<RootView>
-    }
+    override fun getRootViewClass(): Class<View<Node>> =
+        MyKotlinView::class.java as Class<View<Node>>
 }

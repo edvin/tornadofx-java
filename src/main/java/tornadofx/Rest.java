@@ -232,7 +232,7 @@ public class Rest extends Controller {
             return data.stream().map(value -> (JsonObject) value);
         }
 
-        public <Model extends JsonModel> ObservableList<Model> as(Class<Model> objectClass) {
+        public <Model extends JsonModel> ObservableList<Model> to(Class<Model> objectClass) {
             if (data == null)
                 return FXCollections.emptyObservableList();
 
@@ -298,7 +298,7 @@ public class Rest extends Controller {
             this.error = error;
         }
 
-        public <Model extends JsonModel> Model as(Class<Model> objectClass) {
+        public <Model extends JsonModel> Model to(Class<Model> objectClass) {
             if (data == null)
                 return null;
 
