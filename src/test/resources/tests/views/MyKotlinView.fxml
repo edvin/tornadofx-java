@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox prefWidth="1024.0" prefHeight="768.0" xmlns:fx="http://javafx.com/fxml/1">
+    <Button fx:id="saveButton" text="Save me"/>
+</VBox>

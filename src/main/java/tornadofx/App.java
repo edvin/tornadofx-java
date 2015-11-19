@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 @SuppressWarnings("unchecked")
 public abstract class App extends Application {
 
-	public abstract Class<? extends View<? extends Pane>> getRootViewClass();
+	public abstract <PaneType extends Pane, RootView extends View<PaneType>> Class<RootView> getRootViewClass();
 
 	public Class<? extends Component> getErrorHandlerClass() {
 		return DefaultErrorHandler.class;
@@ -26,7 +26,7 @@ public abstract class App extends Application {
 		Task<View<Pane>> init = new Task<View<Pane>>() {
 			protected View<Pane> call() throws Exception {
 				InjectionContext.get(getErrorHandlerClass());
-				return InjectionContext.get((Class<View<Pane>>) getRootViewClass());
+                return InjectionContext.get(getRootViewClass());
 			}
 		};
 

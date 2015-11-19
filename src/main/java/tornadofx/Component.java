@@ -86,12 +86,12 @@ public abstract class Component {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <NodeType extends Node, ViewType extends View> ViewType lookupView(Class<ViewType> componentType) {
+	public static <NodeType extends ViewType, ViewType extends View> ViewType lookupView(Class<ViewType> componentType) {
 		return InjectionContext.get(componentType);
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <NodeType extends Node, FragmentType extends Fragment> FragmentType createFragment(Class<FragmentType> fragmentType) {
+	public static <NodeType extends Node, FragmentType extends Fragment<NodeType>> FragmentType createFragment(Class<FragmentType> fragmentType) {
 		return InjectionContext.get(fragmentType);
 	}
 
