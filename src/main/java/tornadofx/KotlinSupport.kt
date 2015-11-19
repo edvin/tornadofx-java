@@ -9,5 +9,5 @@ fun <NodeType : Node, FragmentType : Fragment<NodeType>> createFragment(type: KC
 fun <ControllerType : Controller> lookupController(type: KClass<ControllerType>): ControllerType =
         InjectionContext.get(type.java)
 
-fun <NodeType : Node, ViewType : View<NodeType>> lookupView(componentType: Class<ViewType>): ViewType =
-        InjectionContext.get(componentType)
+fun <NodeType : Node, ViewType : View<NodeType>> lookupView(componentType: KClass<ViewType>): ViewType =
+        InjectionContext.get(componentType.java)
