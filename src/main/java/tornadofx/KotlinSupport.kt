@@ -4,14 +4,14 @@ import javafx.collections.ObservableList
 import javafx.scene.Node
 import kotlin.reflect.KClass
 
-fun <NodeType : Node, FragmentType : Fragment<NodeType>> createFragment(type: KClass<FragmentType>): FragmentType =
-        InjectionContext.get(type.java)
+inline fun <reified T : Fragment<out Node>> fragment(): T =
+        InjectionContext.get(T::class.java)
 
-fun <ControllerType : Controller> lookupController(type: KClass<ControllerType>): ControllerType =
-        InjectionContext.get(type.java)
+inline fun <reified T : Controller> controller(): T =
+        InjectionContext.get(T::class.java)
 
-fun <NodeType : Node, ViewType : View<NodeType>> lookupView(componentType: KClass<ViewType>): ViewType =
-        InjectionContext.get(componentType.java)
+inline fun <reified T : View<out Node>> view(): T =
+        InjectionContext.get(T::class.java)
 
 fun <Model : JsonModel> Rest.JsonObjectResult.to(objectType: KClass<Model>) : Model =
         to(objectType.java)

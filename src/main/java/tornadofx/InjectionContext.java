@@ -10,11 +10,11 @@ import java.util.*;
 import static tornadofx.ReflectionTools.setFieldValue;
 
 @SuppressWarnings("unchecked")
-class InjectionContext {
+public class InjectionContext {
 	private static final Map<Class, Component> singletons = new HashMap<>();
 
 	@SuppressWarnings("unchecked")
-	static <InjectableType extends Component> InjectableType get(Class<InjectableType> type) {
+	public static <InjectableType extends Component> InjectableType get(Class<InjectableType> type) {
 		if (singletons.containsKey(type))
 			return (InjectableType) singletons.get(type);
 
