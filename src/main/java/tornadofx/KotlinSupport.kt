@@ -12,8 +12,8 @@ inline fun <reified T : Controller> controller(): T =
 inline fun <reified T : View<out Node>> view(): T =
         InjectionContext.get(T::class.java)
 
-inline fun <reified Model : JsonModel> Rest.JsonObjectResult.to() : Model =
-        to(Model::class.java)
+inline fun <reified Model : JsonModel> Rest.JsonObjectResult.toModel() : Model =
+        toModel(Model::class.java)
 
-inline fun <reified Model : JsonModel> Rest.JsonArrayResult.to() : ObservableList<Model> =
-        to(Model::class.java)
+inline fun <reified Model : JsonModel> Rest.JsonArrayResult.toModel() : ObservableList<Model> =
+        toModel(Model::class.java)

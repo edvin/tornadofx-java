@@ -111,35 +111,35 @@ public class Rest extends Controller {
         configure();
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> get(String path, Object... params) {
+    public JsonCall get(String path, Object... params) {
         return get(String.format(path, params));
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> get(String path) {
+    public JsonCall get(String path) {
         return new JsonCall(new HttpGet(getURI(path)));
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> put(String path, Object... params) {
+    public JsonCall put(String path, Object... params) {
         return put(String.format(path, params));
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> put(String path) {
+    public JsonCall put(String path) {
         return new JsonCall(new HttpPut(getURI(path)));
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> post(String path, Object... params) {
+    public JsonCall post(String path, Object... params) {
         return post(String.format(path, params));
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> post(String path) {
+    public JsonCall post(String path) {
         return new JsonCall(new HttpPost(getURI(path)));
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> delete(String path, Object... params) {
+    public JsonCall delete(String path, Object... params) {
         return delete(String.format(path, params));
     }
 
-    public <JsonType extends JsonStructure> JsonCall<JsonType> delete(String path) {
+    public JsonCall delete(String path) {
         return new JsonCall(new HttpDelete(getURI(path)));
     }
 
@@ -232,7 +232,7 @@ public class Rest extends Controller {
             return data.stream().map(value -> (JsonObject) value);
         }
 
-        public <Model extends JsonModel> ObservableList<Model> to(Class<Model> objectClass) {
+        public <Model extends JsonModel> ObservableList<Model> toModel(Class<Model> objectClass) {
             if (data == null)
                 return FXCollections.emptyObservableList();
 
@@ -298,7 +298,7 @@ public class Rest extends Controller {
             this.error = error;
         }
 
-        public <Model extends JsonModel> Model to(Class<Model> objectClass) {
+        public <Model extends JsonModel> Model toModel(Class<Model> objectClass) {
             if (data == null)
                 return null;
 
@@ -310,7 +310,7 @@ public class Rest extends Controller {
     }
 
     @SuppressWarnings("unused")
-    public class JsonCall<JsonType extends JsonStructure> {
+    public class JsonCall {
         private final HttpRequestBase request;
         private JsonStructure data;
 
@@ -343,14 +343,14 @@ public class Rest extends Controller {
         public JsonObjectResult one() {
             long seq = atomicseq.addAndGet(1L);
 
-            JsonObjectResult result = (JsonObjectResult) execute((Class<? extends JsonType>) JsonObject.class);
+            JsonObjectResult result = (JsonObjectResult) execute(JsonObject.class);
             result.seq = seq;
             return result;
         }
 
         public JsonArrayResult list() {
             long seq = atomicseq.addAndGet(1L);
-            JsonArrayResult result = (JsonArrayResult) execute((Class<? extends JsonType>) JsonArray.class);
+            JsonArrayResult result = (JsonArrayResult) execute(JsonArray.class);
             result.seq = seq;
             return result;
         }
@@ -363,7 +363,7 @@ public class Rest extends Controller {
             return result;
         }
 
-        private JsonResult execute(Class<? extends JsonType> returnType) {
+        private JsonResult execute(Class<? extends JsonStructure> returnType) {
             HttpResponse response = null;
 
             try {
