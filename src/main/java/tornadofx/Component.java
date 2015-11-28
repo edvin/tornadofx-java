@@ -111,6 +111,12 @@ public abstract class Component {
 		saveProperties(properties);
 	}
 
+	public void setProperty(String key, Double value) {
+		Properties properties = getProperties();
+		properties.put(key, value.toString());
+		saveProperties(properties);
+	}
+
 	public void setProperty(String key, String value) {
 		Properties properties = getProperties();
 		properties.put(key, value);
@@ -122,7 +128,13 @@ public abstract class Component {
 	}
 
 	public Integer getIntProperty(String key) {
-		return Integer.valueOf(getProperty(key));
+		String value = getProperty(key);
+		return value == null ? null : Integer.valueOf(value);
+	}
+
+	public Double getDoubleProperty(String key) {
+		String value = getProperty(key);
+		return value == null ? null : Double.valueOf(value);
 	}
 
 	public String getProperty(String key) {
