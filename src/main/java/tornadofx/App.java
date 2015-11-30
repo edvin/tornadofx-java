@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 @SuppressWarnings({"unchecked", "ThrowableResultOfMethodCallIgnored"})
 public abstract class App extends Application {
 
-	public abstract Class<View> getRootViewClass();
+	public abstract Class<? extends View> getRootViewClass();
 
 	public Class<? extends Component> getErrorHandlerClass() {
 		return DefaultErrorHandler.class;
