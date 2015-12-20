@@ -4,6 +4,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @SuppressWarnings("unchecked")
 public interface JsonModel {
@@ -68,5 +69,6 @@ public interface JsonModel {
 	default LocalDate getLocalDate(JsonObject json, String key, LocalDate defaultValue) {
 		return json.containsKey(key) ? LocalDate.parse(json.getString(key)) : defaultValue;
 	}
+
 
 }

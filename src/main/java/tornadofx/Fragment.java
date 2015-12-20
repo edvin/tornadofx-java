@@ -21,9 +21,8 @@ public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeTy
 			throw new IllegalArgumentException("Only Parent Fragments can be opened in a Modal");
 
 		modalStage = new Stage();
-		modalStage.setResizable(false);
 		modalStage.titleProperty().bind(titleProperty());
-		modalStage.initModality(Modality.WINDOW_MODAL);
+		modalStage.initModality(Modality.APPLICATION_MODAL);
 
 		Scene scene = new Scene((Parent) getNode());
 
