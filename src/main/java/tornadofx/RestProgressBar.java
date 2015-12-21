@@ -3,9 +3,11 @@ package tornadofx;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tooltip;
 import org.apache.http.client.methods.HttpRequestBase;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 public class RestProgressBar extends View<ProgressBar> {
 	@Inject Rest api;
@@ -16,7 +18,13 @@ public class RestProgressBar extends View<ProgressBar> {
 
 			Platform.runLater(() -> {
 				ProgressBar indicator = getNode();
-				indicator.setVisible(size > 0);
+
+                String tooltip = c.getList().stream()
+                        .map(r -> String.format("%s %s", r.getMethod(), r.getURI()))
+                        .collect(Collectors.joining("\n"));
+
+                indicator.setTooltip(new Tooltip(tooltip));
+                indicator.setVisible(size > 0);
 
 				if (size == 0) {
 					indicator.setProgress(100);
