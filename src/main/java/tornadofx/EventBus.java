@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class EventBus {
+public class EventBus {
 	private static Map<Class<? extends FXEvent>, List<EventListener>> listeners = new HashMap<>();
 
 	static void subscribe(EventCapable owner, Method consumer, OnEvent config) {
