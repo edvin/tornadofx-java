@@ -84,11 +84,7 @@ public class Rest extends Controller {
     }
 
     private RequestConfig getDefaultRequestConfig() {
-        return RequestConfig.custom()
-                .setSocketTimeout(5000)
-                .setConnectTimeout(5000)
-                .setConnectionRequestTimeout(5000)
-                .build();
+        return RequestConfig.custom().build();
     }
 
     public void resetClientContext() {
