@@ -1,13 +1,15 @@
 package tornadofx;
 
+import com.sun.javafx.scene.control.skin.TableColumnHeader;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.EventTarget;
 import javafx.scene.Node;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.ToolBar;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
@@ -16,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 import static tornadofx.ReflectionTools.getFieldValue;
 import static tornadofx.ReflectionTools.getFxChildren;
@@ -222,6 +223,32 @@ public class FX {
 				}
 			}
 		}
+	}
+
+	public static void applyStylesheets(Parent parent) {
+		parent.getStylesheets().addAll(FXResources.stylesheets);
+	}
+
+	public static void applyStylesheets(Scene scene) {
+		scene.getStylesheets().addAll(FXResources.stylesheets);
+	}
+
+	public static boolean isInsideTableRow(EventTarget target) {
+		if (!(target instanceof Node))
+			return false;
+
+		Node node = (Node) target;
+
+		if (node instanceof TableColumnHeader)
+			return false;
+
+		if (node instanceof TableRow || node instanceof TableView)
+			return true;
+
+		if (node.getParent() != null)
+			return isInsideTableRow(node.getParent());
+
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")

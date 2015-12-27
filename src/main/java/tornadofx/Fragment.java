@@ -10,9 +10,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.Getter;
+import lombok.Setter;
 
 public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeType> implements EventCapable {
-	@Getter private Stage modalStage;
+	@Getter @Setter private Stage modalStage;
 
     public void openModal() {
         openModal(StageStyle.DECORATED);
@@ -39,9 +40,7 @@ public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeTy
 		modalStage.setScene(scene);
 		modalStage.show();
 
-		// Apply registered stylesheets
-		for (String stylesheet : FXResources.stylesheets)
-			scene.getStylesheets().add(stylesheet);
+		FX.applyStylesheets(scene);
 
 		Platform.runLater(() -> getNode().requestFocus());
 	}

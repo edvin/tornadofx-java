@@ -8,12 +8,15 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public abstract class UIComponent<NodeType extends Node> extends Component {
@@ -67,13 +70,23 @@ public abstract class UIComponent<NodeType extends Node> extends Component {
 	 * @param action The runnable to execute on select
 	 */
 	protected void onUserSelect(Node node, Integer clickCount, ThrowableRunnable action) {
+		Function<InputEvent, Boolean> isSelected = event -> {
+
+			if (node instanceof TableView) {
+				if (!FX.isInsideTableRow(event.getTarget()) || ((TableView) node).getSelectionModel().isEmpty())
+					return false;
+			}
+
+			return true;
+		};
+
 		node.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-			if (event.getClickCount() == clickCount)
+			if (event.getClickCount() == clickCount && isSelected.apply(event))
 				FX.errorReportingRunnable(this, action).run();
 		});
 
 		node.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-			if (event.getCode() == KeyCode.ENTER && !event.isMetaDown())
+			if (event.getCode() == KeyCode.ENTER && !event.isMetaDown() && isSelected.apply(event))
 				FX.errorReportingRunnable(this, action).run();
 		});
 	}
