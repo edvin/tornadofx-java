@@ -6,9 +6,13 @@ import javafx.scene.Parent;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("unchecked")
 class FXResources {
+	static List<String> stylesheets = new ArrayList<>();
+
 	static <NodeType extends Node> NodeType loadFxml(UIComponent<NodeType> component) throws IOException {
 		Class componentType = component.getClass();
 
@@ -30,13 +34,15 @@ class FXResources {
 
 		if (css != null && component.getNode() instanceof Parent) {
 			Parent parent = (Parent) component.getNode();
-			parent.getStylesheets().add(css.toExternalForm());
+
+			String stylesheet = css.toExternalForm();
+			parent.getStylesheets().add(stylesheet);
+			stylesheets.add(stylesheet);
+
 			return true;
 		}
 
 		return false;
 	}
-
-
 
 }

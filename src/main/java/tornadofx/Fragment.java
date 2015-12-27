@@ -39,6 +39,10 @@ public abstract class Fragment<NodeType extends Node> extends UIComponent<NodeTy
 		modalStage.setScene(scene);
 		modalStage.show();
 
+		// Apply registered stylesheets
+		for (String stylesheet : FXResources.stylesheets)
+			scene.getStylesheets().add(stylesheet);
+
 		Platform.runLater(() -> getNode().requestFocus());
 	}
 
