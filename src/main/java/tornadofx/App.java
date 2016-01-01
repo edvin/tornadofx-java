@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import kotlin.reflect.KClass;
 
 @SuppressWarnings({"unchecked", "ThrowableResultOfMethodCallIgnored"})
 public abstract class App extends Application {

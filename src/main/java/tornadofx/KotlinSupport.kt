@@ -1,5 +1,6 @@
 package tornadofx
 
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.concurrent.Task
@@ -27,8 +28,13 @@ fun <T> List<T>.observable() = FXCollections.observableList(this)
 fun <T> Component.background(func: () -> T): Task<T> = async(func)
 
 infix fun <T> Task<T>.ui(func: (T) -> Unit) {
-    setOnSucceeded { func(value) }
+    Platform.runLater {
+        setOnSucceeded { func(value) }
+    }
 }
+
+fun Node.addClass(className: String) = styleClass.add(className)
+fun Node.removeClass(className: String) = styleClass.remove(className)
 
 @Suppress("UNCHECKED_CAST")
 inline public fun <reified T : Component> inject(): ReadOnlyProperty<Component, T> = object : ReadOnlyProperty<Component, T> {
